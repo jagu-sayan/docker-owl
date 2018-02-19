@@ -1,0 +1,98 @@
+version: 2
+
+
+# Job steps (defined in a YAML alias map, see http://yaml.org/type/merge.html)
+job-steps: &job-steps
+  steps:
+    # 1. Checkout source code
+    - checkout
+    # 2. Build
+    - run:
+        name: Build
+        command: cargo build --release && cargo install
+    # 3. Store build result
+    - store_artifacts:
+        path: /root/.cargo/bin/docker-owl
+    # 4. Test
+    # - run:
+    #     name: Test
+    #     command: cargo test --release
+    # 5. Deploy
+    - run:
+        name: Deploy
+        command: ./.circleci/deploy.sh
+
+
+# Jobs (duplicate the same job, but with different names and base docker image)
+jobs:
+  build-powerpc64le-gnu:
+    docker:
+      - image: jagu/rust-cross-build:nightly-powerpc64le-unknown-linux-gnu
+    environment:
+      - ARCH: "powerpc64le-gnu"
+    <<: *job-steps
+  build-armv7-gnueabihf:
+    docker:
+      - image: jagu/rust-cross-build:nightly-armv7-unknown-linux-gnueabihf
+    environment:
+      - ARCH: "armv7-gnueabihf"
+    <<: *job-steps
+  build-arm-gnueabi:
+    docker:
+      - image: jagu/rust-cross-build:nightly-arm-unknown-linux-gnueabi
+    environment:
+      - ARCH: "arm-gnueabi"
+    <<: *job-steps
+  build-x86_64-gnu:
+    docker:
+      - image: jagu/rust-cross-build:nightly-x86_64-unknown-linux-gnu
+    environment:
+      - ARCH: "x86_64-gnu"
+    <<: *job-steps
+  validate:
+    docker:
+      - image: jagu/rust-cross-build:nightly-x86_64-unknown-linux-gnu
+    steps:
+      # 1. Checkout source code
+      - checkout
+      # 2. Bootstrap
+      - run:
+          name: Bootstrap
+          command: rustup component add clippy
+      # 3. Validate
+      - run:
+          name: Validate
+          command: cargo clippy
+
+
+# See https://circleci.com/docs/2.0/workflows/#git-tag-job-execution
+# We only run build job of special architecture (mips, arm, i686)
+# when a release tag is created eg. v1.2.3 or v1.2.3-rc.1
+workflows:
+  version: 2
+  run:
+    jobs:
+      - build-powerpc64le-gnu:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-armv7-gnueabihf:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-arm-gnueabi:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-x86_64-gnu:
+          context: org-global
+          filters: { tags: { only: '/.*/' } } # All branches and all tags
+      - validate:
+          context: org-global
+          filters: { tags: { only: '/.*/' } } # All branches and all tags

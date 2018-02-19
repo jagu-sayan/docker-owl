@@ -1,0 +1,24 @@
+[package]
+name = "docker-owl"
+version = "0.1.0"
+authors = ["jagu"]
+edition = "2018"
+
+
+[dependencies]
+openssl-probe = "0.1"
+failure = "0.1"
+failure_derive = "0.1"
+log = "0.4"
+url = "1.7"
+http = "0.1"
+docopt = "1.0"
+serde = "1.0"
+serde_derive = "1.0"
+shiplift = "0.4"
+tera = "0.11"
+# acme-client = "0.5"
+acme-client = { git = "https://github.com/janderholm/acme-client", branch = "master" }
+termios = "0.3"
+futures-preview = { version = "0.3.0-alpha.12", features = ["compat", "tokio-compat"] }
+tokio = "0.1"
