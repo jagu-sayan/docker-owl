@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Kind: Bug",
+    "color": "fbca04"
+  },
+  {
+    "name": "Kind: Discussion",
+    "color": "C8E6C9"
+  },
+  {
+    "name": "Kind: Enhancement",
+    "color": "2E7D32"
+  },
+  {
+    "name": "Kind: Feature",
+    "color": "2E7D32"
+  },
+  {
+    "name": "Kind: Maintenance",
+    "color": "2E7D32"
+  },
+  {
+    "name": "P0: Critical",
+    "color": "b60205"
+  },
+  {
+    "name": "P1: Urgent",
+    "color": "d93f0b"
+  },
+  {
+    "name": "P2: Important",
+    "color": "e99695"
+  },
+  {
+    "name": "P3: Normal",
+    "color": "f9d0c4"
+  },
+  {
+    "name": "P4: Nice to have",
+    "color": "fef2c0"
+  },
+  {
+    "name": "Status: Abanboned",
+    "color": "dddddd"
+  },
+  {
+    "name": "Status: Duplicate",
+    "color": "dddddd"
+  },
+  {
+    "name": "Status: Invalid",
+    "color": "dddddd"
+  },
+  {
+    "name": "Status: Review Needed",
+    "color": "BA68C8"
+  },
+  {
+    "name": "Status: Upstream",
+    "color": "BA68C8"
+  },
+  {
+    "name": "Sub: lets encrypt",
+    "color": "bfd4f2"
+  }
+]

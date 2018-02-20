@@ -1,5 +1,11 @@
 # Docker owl
 
+> Rust Images (mainly for [CircleCI](https://circleci.com))
+
+[[![CircleCI](https://circleci.com/gh/jagu-sayan/docker-owl.svg?style=svg)](https://circleci.com/gh/jagu-sayan/docker-owl)]
+
+<img align="right" alt="Rust logo" src="media/rust-logo.svg" title="Rust" width="200"/>
+
 ## Usage
 ```
 Usage:
@@ -8,44 +14,43 @@ Usage:
   docker-owl --version
 
 Options:
-  -h --help                  Show this screen.
-  --version                  Show version.
+  -h --help                  Show this screen
+  --version                  Show version
   -e URL, --endpoint URL     Docker api endpoint (tcp|unix://..)
                              [default: unix:///var/run/docker.sock]
-  --watch                    Watch for container changes.
+  --watch                    Watch for container changes
   --only-labels=<labels>     Only docker container with specified labels
-                             are watched.
-                             Each label are separated by whitespace.
+                             are watched
+                             Each label are separated by whitespace
                              [default: virtual-host]
   --notify=<command>         Run custom command
-  --notify-restart=<id>      Restart container `id`.
-  --notify-reload=<id>       Reload container `id`.
-
-Arguments:
-  template - path to a template to generate
-  dest - path to a write the template. If not specfied, STDOUT is used
+  --notify-restart=<id>      Restart container `id`
+  --notify-reload=<id>       Reload container `id`
 
 Environment Variables:
+  OWL_DEBUG - enable debug mode
   DOCKER_HOST - default value for -endpoint
   DOCKER_CERT_PATH - directory path containing key.pem, cert.pm and ca.pem
   DOCKER_TLS_VERIFY - enable client TLS verification
 
-Let's encrypt labels:
-  - letsencrypt-host     Specify the host used by letsencrypt
-                         [default: localhost]
-  - letsencrypt-mail     Mail used in letsencrypt certificates.
-                         [default: demo@localhost]
-  - letsencrypt-keysize  Determines the size of the requested key.
-                         [default: 4096]
+Docker let's encrypt labels:
+  - letsencrypt-enable       Use `encrypt` plugin
+  - letsencrypt-dest         Path where the certification files are written
+                             [default: ./certs]
+  - letsencrypt-challenge    A verification challenge (values: http, dns)
+                             [default: dns]
+  - letsencrypt-hostname     Specify the host used by letsencrypt
+                             [default: localhost]
+  - letsencrypt-mail         Mail used in letsencrypt certificates
+                             [default: None]
+  - letsencrypt-keysize      Determines the size of the requested key
+                             [default: 4096]
+  - letsencrypt-dh-group     Use pre-defined DHE groups (values: ffdhe2048, ffdhe3072, ffdhe4096)
+                             [default: None]
 
-Template label:
-  - 
-  - Any label prefixed
-  By convention all letsencrypt label use `ssl-label` as prefix.
-  - letsencrypt-host     Specify the host used by letsencrypt
-                         [default: localhost]
-  - letsencrypt-mail     Mail used in letsencrypt certificates.
-                         [default: demo@localhost]
-  - letsencrypt-keysize  Determines the size of the requested key.
-                         [default: 4096]
+Docker template labels:
+  - owl-template-enable      Use `template` plugin
+  - owl-template-files       List of template filenames (separated by whitespaces)
+  - owl-template-src         Path to read the templates
+  - owl-template-dest        Path to write the templates. If not specfied, STDOUT is used
 ```

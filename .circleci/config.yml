@@ -1,0 +1,134 @@
+version: 2
+
+
+# Job steps (defined in a YAML alias map, see http://yaml.org/type/merge.html)
+job-steps: &job-steps
+  steps:
+    # 1. Checkout source code
+    - checkout
+    # 2. Build
+    - run:
+        name: Build
+        command: cargo build --release && cargo install
+    # 3. Store build result
+    - store_artifacts:
+        path: /root/.cargo/bin/docker-owl
+    # 4. Test
+    # - run:
+    #     name: Test
+    #     command: cargo test --release
+    # 5. Deploy
+    - run:
+        name: Deploy
+        command: ./.circleci/deploy.sh
+
+
+# Jobs (duplicate the same job, but with different names and base docker image)
+jobs:
+  build-mips-musl:
+    docker:
+      - image: messense/rust-musl-cross:mips-musl
+    environment:
+      - ARCH: "mips-musl"
+    <<: *job-steps
+  build-mipsel-musl:
+    docker:
+      - image: messense/rust-musl-cross:mipsel-musl
+    environment:
+      - ARCH: "mipsel-musl"
+    <<: *job-steps
+  build-armv7-musleabihf:
+    docker:
+      - image: messense/rust-musl-cross:armv7-musleabihf
+    environment:
+      - ARCH: "armv7-musleabihf"
+    <<: *job-steps
+  build-i686-musl:
+    docker:
+      - image: messense/rust-musl-cross:i686-musl
+    environment:
+      - ARCH: "i686-musl"
+    <<: *job-steps
+  build-arm-musleabihf:
+    docker:
+      - image: messense/rust-musl-cross:arm-musleabihf
+    environment:
+      - ARCH: "arm-musleabihf"
+    <<: *job-steps
+  build-arm-musleabi:
+    docker:
+      - image: messense/rust-musl-cross:arm-musleabi
+    environment:
+      - ARCH: "arm-musleabi"
+    <<: *job-steps
+  build-x86_64-musl:
+    docker:
+      - image: messense/rust-musl-cross:x86_64-musl
+    environment:
+      - ARCH: "x86_64-musl"
+    <<: *job-steps
+  validate:
+    docker:
+      - image: rustlang/rust:nightly
+    steps:
+      # 1. Checkout source code
+      - checkout
+      # 2. Install clippy
+      - run:
+          name: Bootstrap
+          command: cargo +nightly install clippy
+      # 3. Validate
+      - run:
+          name: Validate
+          command: cargo clippy
+
+
+# See https://circleci.com/docs/2.0/workflows/#git-tag-job-execution
+# We only run build job of special architecture (mips, arm, i686)
+# when a release tag is created eg. v1.2.3 or v1.2.3-rc.1
+workflows:
+  version: 2
+  run:
+    jobs:
+      - build-mips-musl:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-mipsel-musl:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-armv7-musleabihf:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-i686-musl:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-arm-musleabihf:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-arm-musleabi:
+          context: org-global
+          filters:
+            branches: { ignore: '/.*/' } # Ignore all branch
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)+(-(rc|alpha|beta)\.[0-9]+)?$/
+      - build-x86_64-musl:
+          context: org-global
+          filters: { tags: { only: '/.*/' } } # All branches and all tags
+      - validate:
+          context: org-global
+          filters: { tags: { only: '/.*/' } } # All branches and all tags
